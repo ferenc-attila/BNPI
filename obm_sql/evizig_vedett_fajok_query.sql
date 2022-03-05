@@ -12,7 +12,6 @@ OR bnpi_species_data.aktivitas LIKE '%neklő%'
 OR bnpi_species_data.aktivitas LIKE '%fészek%'
 OR bnpi_species_data.aktivitas LIKE '%fészkel%'
 OR bnpi_species_data.aktivitas LIKE '%pelyhes%'
-OR bnpi_species_data.aktivitas LIKE '%tojás%'
 OR bnpi_species_data.aktivitas LIKE '%erritor%'
 OR bnpi_species_data.aktivitas LIKE '%költőh%'
 OR bnpi_species_data.aktivitas LIKE '%tojás%')
