@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -16,6 +18,7 @@ import java.util.zip.ZipOutputStream;
 public class WriteZipBackup {
 
     private static final int BUFFER = 2048;
+    private static final String DATAFILE_EXTENSION = ".gpkg";
 
     private final File inputFolder;
     private final String outputFileName;
@@ -23,9 +26,21 @@ public class WriteZipBackup {
 
 
     public WriteZipBackup(String inputFolder, String outputFileName) {
-        //validateInputStrings!!!
+        validateInputString(inputFolder);
+        validateInputString(outputFileName);
         this.inputFolder = Path.of(inputFolder).toFile();
-        this.outputFileName = outputFileName;
+        this.outputFileName = outputFileName + createOutputFileNamePostfix();
+    }
+
+    private String createOutputFileNamePostfix() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
+        return "_" + LocalDateTime.now().format(formatter) + ".zip";
+    }
+
+    private void validateInputString(String string) {
+        if (string == null || string.isBlank()) {
+            throw new IllegalStateException("The input parameters cannot be null or empty string!");
+        }
     }
 
     public void writeZip() {
@@ -33,7 +48,7 @@ public class WriteZipBackup {
         try (ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(outputFileName))) {
             listOfFiles.forEach(file -> addToZipFile(file, zipOutputStream));
         } catch (IOException | IllegalStateException exception) {
-            // Something must happens!!!
+            System.out.println(exception.getMessage());
         }
     }
 
@@ -42,14 +57,17 @@ public class WriteZipBackup {
             ZipEntry entry = new ZipEntry(createRelativePathString(file));
             entry.setCreationTime(FileTime.fromMillis(file.lastModified()));
             zipOutputStream.putNextEntry(entry);
-
-            byte[] readBuffer = new byte[BUFFER];
-            int amountRead;
-            while ((amountRead = inputStream.read(readBuffer)) != -1) {
-                zipOutputStream.write(readBuffer, 0, amountRead);
-            }
+            writeInputStreamToOutputStream(zipOutputStream, inputStream);
         } catch (IOException ioe) {
             throw new IllegalStateException("Unable to process " + file.getName() + "!", ioe);
+        }
+    }
+
+    private void writeInputStreamToOutputStream(ZipOutputStream zipOutputStream, FileInputStream inputStream) throws IOException {
+        byte[] readBuffer = new byte[BUFFER];
+        int amountRead;
+        while ((amountRead = inputStream.read(readBuffer)) != -1) {
+            zipOutputStream.write(readBuffer, 0, amountRead);
         }
     }
 
@@ -63,6 +81,9 @@ public class WriteZipBackup {
             paths
                     .map(Path::toFile)
                     .filter(File::isFile)
+                    .filter(file -> !file.isHidden())
+                    .filter(file -> !file.getName().startsWith("."))
+                    .filter(file -> file.getName().contains(DATAFILE_EXTENSION))
                     .forEach(listOfFiles::add);
         } catch (IOException ex) {
             throw new IllegalStateException("Cannot read folder: " + inputFolder + "!");
