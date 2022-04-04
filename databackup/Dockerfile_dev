@@ -1,3 +1,5 @@
+#Dockerfile for development
+
 FROM eclipse-temurin:17-jre-alpine
 
 RUN mkdir "/etc/app/" && \
@@ -7,11 +9,11 @@ RUN mkdir "/etc/app/" && \
     mkdir "/etc/app/data-backup/backup" && \
     mkdir "/etc/app/data-backup/logs"
 
-COPY ./out/artifacts/databackup_jar/databackup.jar /etc/app/data-backup/jar/databackup.jar
+#COPY ./out/artifacts/databackup_jar/databackup.jar /etc/app/data-backup/jar/databackup.jar
 COPY docker_resources/crontab /etc/crontabs/root
 COPY docker_resources/entrypoint.sh /entrypoint.sh
 
-RUN chmod 0644 /etc/app/data-backup/jar/databackup.jar && \
-chmod 755 /entrypoint.sh
+#RUN chmod 0644 /etc/app/data-backup/jar/databackup.jar && \
+RUN chmod 755 /entrypoint.sh
 
 ENTRYPOINT /entrypoint.sh
