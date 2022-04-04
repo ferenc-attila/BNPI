@@ -1,0 +1,2 @@
+# min       hour        day         month       weekday     command
+*/2           *           *           *           *         { printf "%s: autobackup\n" "$(date "+%F %T")"; java -jar /etc/app/data-backup/jar/databackup.jar /etc/app/data-backup/data /etc/app/data-backup/backup/auto-backup ; } >> /etc/app/data-backup/logs/cron.log 2>%1

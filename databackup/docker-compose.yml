@@ -1,0 +1,10 @@
+version: "3.9"
+
+services:
+  databackup:
+    image: ferencattila/databackup:latest
+    volumes:
+      - ./docker_resources/backup:/etc/app/data-backup/backup
+      - ./docker_resources/data:/etc/app/data-backup/data
+      - ./docker_resources/logs:/etc/app/data-backup/logs
+      - ./out/artifacts/databackup_jar/databackup.jar:/etc/app/data-backup/jar/databackup.jar

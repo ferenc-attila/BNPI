@@ -39,7 +39,7 @@ public class WriteZipBackup {
 
     private void validateInputString(String string) {
         if (string == null || string.isBlank()) {
-            throw new IllegalStateException("The input parameters cannot be null or empty string!");
+            throw new IllegalArgumentException("The input parameters cannot be null or empty string!");
         }
     }
 
@@ -47,7 +47,7 @@ public class WriteZipBackup {
         createListOfInputFiles();
         try (ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(outputFileName))) {
             listOfFiles.forEach(file -> addToZipFile(file, zipOutputStream));
-        } catch (IOException | IllegalStateException exception) {
+        } catch (IOException | IllegalStateException | IllegalArgumentException exception) {
             System.out.println(exception.getMessage());
         }
     }
@@ -92,10 +92,18 @@ public class WriteZipBackup {
 
     private void validateInputFolder() {
         if (inputFolder == null) {
-            throw new IllegalStateException("Folder can not be null!");
+            throw new IllegalStateException("Input folder can not be null!");
         }
         if (!inputFolder.isDirectory()) {
             throw new IllegalStateException("Input folder: " + inputFolder + " does not exists or not a directory!");
         }
+    }
+
+    public File getInputFolder() {
+        return inputFolder;
+    }
+
+    public String getOutputFileName() {
+        return outputFileName;
     }
 }
