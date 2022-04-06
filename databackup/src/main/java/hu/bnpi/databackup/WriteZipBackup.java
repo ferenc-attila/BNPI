@@ -1,5 +1,8 @@
 package hu.bnpi.databackup;
 
+import ch.qos.logback.classic.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -19,11 +22,11 @@ public class WriteZipBackup {
 
     private static final int BUFFER = 2048;
     private static final String DATAFILE_EXTENSION = ".gpkg";
+    private static final Logger logger = (Logger) LoggerFactory.getLogger(WriteZipBackup.class);
 
     private final File inputFolder;
     private final String outputFileName;
     private final List<File> listOfFiles = new ArrayList<>();
-
 
     public WriteZipBackup(String inputFolder, String outputFileName) {
         validateInputString(inputFolder);
@@ -39,16 +42,20 @@ public class WriteZipBackup {
 
     private void validateInputString(String string) {
         if (string == null || string.isBlank()) {
+            logger.error("The input parameters cannot be null or empty string!");
             throw new IllegalArgumentException("The input parameters cannot be null or empty string!");
         }
     }
 
     public void writeZip() {
+        logger.info("Starting backup...");
         createListOfInputFiles();
+        listOfFiles.forEach(file -> logger.debug("Add file " + file.getName() + " to " + outputFileName.substring(outputFileName.lastIndexOf("/") + 1)));
         try (ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(outputFileName))) {
             listOfFiles.forEach(file -> addToZipFile(file, zipOutputStream));
+            logger.info(outputFileName + " created successfully with " + Files.size(Path.of(outputFileName)) + " bytes.");
         } catch (IOException | IllegalStateException | IllegalArgumentException exception) {
-            System.out.println(exception.getMessage());
+            logger.error(exception.getMessage());
         }
     }
 
@@ -59,6 +66,7 @@ public class WriteZipBackup {
             zipOutputStream.putNextEntry(entry);
             writeInputStreamToOutputStream(zipOutputStream, inputStream);
         } catch (IOException ioe) {
+            logger.error("Unable to process " + file.getName() + "!");
             throw new IllegalStateException("Unable to process " + file.getName() + "!", ioe);
         }
     }
@@ -86,15 +94,18 @@ public class WriteZipBackup {
                     .filter(file -> file.getName().contains(DATAFILE_EXTENSION))
                     .forEach(listOfFiles::add);
         } catch (IOException ex) {
+            logger.error("Cannot read folder: " + inputFolder + "!");
             throw new IllegalStateException("Cannot read folder: " + inputFolder + "!");
         }
     }
 
     private void validateInputFolder() {
         if (inputFolder == null) {
+            logger.error("Input folder can not be null!");
             throw new IllegalStateException("Input folder can not be null!");
         }
         if (!inputFolder.isDirectory()) {
+            logger.error("Input folder: " + inputFolder + " does not exists or not a directory!");
             throw new IllegalStateException("Input folder: " + inputFolder + " does not exists or not a directory!");
         }
     }
