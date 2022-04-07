@@ -1,7 +1,7 @@
 <configuration>
 
     <appender name="LOGFILE" class="ch.qos.logback.core.FileAppender">
-        <file>docker_resources/logs/write_zip_backup.log</file>
+        <file>logs/write_zip_backup.log</file>
         <!-- encoders are assigned the type
              ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
         <encoder>
@@ -9,7 +9,7 @@
         </encoder>
     </appender>
 
-    <root level="DEBUG">
+    <root level="INFO">
         <appender-ref ref="LOGFILE" />
     </root>
 </configuration>

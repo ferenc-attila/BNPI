@@ -1,5 +1,5 @@
 # Data backup
-_V1.0-SNAPSHOT: 2022-04-04_
+_V1.0: 2022-04-07_
 
 A small application to save a folder recursively into a zip file.
 It reads the input folder's and the output file's path from the command line argument.
@@ -18,8 +18,8 @@ and the docker image on [Docker Hub](https://hub.docker.com/r/ferencattila/datab
 
 ## TODO
 
-- [ ] implementation of test cases
+- [ ] implementation of more test cases
 - [ ] read paths from a properties file
-- [ ] logback implementation
+- [x] logback implementation
 - [ ] documentation
 - [ ] dynamic filters
