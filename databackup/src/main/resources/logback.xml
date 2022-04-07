@@ -1,7 +1,7 @@
 <configuration>
 
     <appender name="LOGFILE" class="ch.qos.logback.core.FileAppender">
-        <file>logs/write_zip_backup.log</file>
+        <file>/etc/app/data-backup/logs/write_zip_backup.log</file>
         <!-- encoders are assigned the type
              ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
         <encoder>
