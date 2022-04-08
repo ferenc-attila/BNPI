@@ -16,7 +16,7 @@ class WriteZipBackupTest {
 
     @Test
     void writeZipWithRelativePathTest() {
-        WriteZipBackup writeZipBackup = new WriteZipBackup("src/test/resources", temporaryFolder.getPath() + "/backup");
+        WriteZipBackup writeZipBackup = new WriteZipBackup("src/test/resources", temporaryFolder.getPath() + "/backup", "gpkg");
         writeZipBackup.writeZip();
         Path path = writeZipBackup.getInputFolder().toPath().resolve(writeZipBackup.getOutputFileName());
         assertTrue(Files.exists(path));
@@ -26,7 +26,7 @@ class WriteZipBackupTest {
     void writeZipWithAbsolutePathTest() {
         Path inputAbsolutePath = Path.of("src/test/resources").toAbsolutePath();
         Path outputAbsolutePath = Path.of(temporaryFolder.getPath() + "/backup").toAbsolutePath();
-        WriteZipBackup writeZipBackup = new WriteZipBackup(inputAbsolutePath.toString(), outputAbsolutePath.toString());
+        WriteZipBackup writeZipBackup = new WriteZipBackup(inputAbsolutePath.toString(), outputAbsolutePath.toString(), "gpkg");
         writeZipBackup.writeZip();
         Path path = writeZipBackup.getInputFolder().toPath().resolve(writeZipBackup.getOutputFileName());
         assertTrue(Files.exists(path));
@@ -34,7 +34,7 @@ class WriteZipBackupTest {
 
     @Test
     void writeZipInputPathNotExistsTest() {
-        WriteZipBackup writeZipBackup = new WriteZipBackup("src/test/__resources", temporaryFolder.getPath() + "/backup");
+        WriteZipBackup writeZipBackup = new WriteZipBackup("src/test/__resources", temporaryFolder.getPath() + "/backup", "gpkg");
         IllegalStateException ise = assertThrows(IllegalStateException.class, writeZipBackup::writeZip);
         assertEquals("Input folder: src\\test\\__resources does not exists or not a directory!", ise.getMessage());
     }
@@ -42,49 +42,49 @@ class WriteZipBackupTest {
     @Test
     void writeZipNullInputPathTest() {
         IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
-                () -> new WriteZipBackup(null, temporaryFolder.getPath() + "/backup"));
+                () -> new WriteZipBackup(null, temporaryFolder.getPath() + "/backup", "gpkg"));
         assertEquals("The input parameters cannot be null or empty string!", iae.getMessage());
     }
 
     @Test
     void writeZipNullOutputPathTest() {
         IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
-                () -> new WriteZipBackup("src/test/__resources", null));
+                () -> new WriteZipBackup("src/test/__resources", null, "gpkg"));
         assertEquals("The input parameters cannot be null or empty string!", iae.getMessage());
     }
 
     @Test
     void writeZipNullBothPathTest() {
         IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
-                () -> new WriteZipBackup(null, null));
+                () -> new WriteZipBackup(null, null, "gpkg"));
         assertEquals("The input parameters cannot be null or empty string!", iae.getMessage());
     }
 
     @Test
     void writeZipEmptyInputPathTest() {
         IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
-                () -> new WriteZipBackup("", temporaryFolder.getPath() + "/backup"));
+                () -> new WriteZipBackup("", temporaryFolder.getPath() + "/backup", "gpkg"));
         assertEquals("The input parameters cannot be null or empty string!", iae.getMessage());
     }
 
     @Test
     void writeZipEmptyOutputPathTest() {
         IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
-                () -> new WriteZipBackup("src/test/__resources", ""));
+                () -> new WriteZipBackup("src/test/__resources", "", "gpkg"));
         assertEquals("The input parameters cannot be null or empty string!", iae.getMessage());
     }
 
     @Test
     void writeZipEmptyBothPathTest() {
         IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
-                () -> new WriteZipBackup("", ""));
+                () -> new WriteZipBackup("", "", "gpkg"));
         assertEquals("The input parameters cannot be null or empty string!", iae.getMessage());
     }
 
     @Test
     void writeZipInvalidInputPathTest() {
         IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
-                () -> new WriteZipBackup("src/test/:resources", temporaryFolder.getPath() + "/backup"));
-        assertEquals("Invalid character in path: ':'!", iae.getMessage());
+                () -> new WriteZipBackup("src/test/:resources", temporaryFolder.getPath() + "/backup", "gpkg"));
+        assertEquals("Illegal char <:> at index 9: src/test/:resources", iae.getMessage());
     }
 }

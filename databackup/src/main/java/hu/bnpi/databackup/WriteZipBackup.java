@@ -21,18 +21,19 @@ import java.util.zip.ZipOutputStream;
 public class WriteZipBackup {
 
     private static final int BUFFER = 2048;
-    private static final String DATAFILE_EXTENSION = ".gpkg";
     private static final Logger logger = (Logger) LoggerFactory.getLogger(WriteZipBackup.class);
 
     private final File inputFolder;
     private final String outputFileName;
+    private final String fileFilter;
     private final List<File> listOfFiles = new ArrayList<>();
 
-    public WriteZipBackup(String inputFolder, String outputFileName) {
+    public WriteZipBackup(String inputFolder, String outputFileName, String fileFilter) {
         validateInputString(inputFolder);
         validateInputString(outputFileName);
         this.inputFolder = Path.of(inputFolder).toFile();
         this.outputFileName = outputFileName + createOutputFileNamePostfix();
+        this.fileFilter = fileFilter;
     }
 
     private String createOutputFileNamePostfix() {
@@ -91,11 +92,19 @@ public class WriteZipBackup {
                     .filter(File::isFile)
                     .filter(file -> !file.isHidden())
                     .filter(file -> !file.getName().startsWith("."))
-                    .filter(file -> file.getName().contains(DATAFILE_EXTENSION))
+                    .filter(this::filterByFileName)
                     .forEach(listOfFiles::add);
         } catch (IOException ex) {
             logger.error("Cannot read folder: " + inputFolder + "!");
             throw new IllegalStateException("Cannot read folder: " + inputFolder + "!");
+        }
+    }
+
+    private boolean filterByFileName(File file) {
+        if (fileFilter == null || fileFilter.isBlank()) {
+            return true;
+        } else {
+            return file.getName().contains(fileFilter);
         }
     }
 
@@ -116,5 +125,9 @@ public class WriteZipBackup {
 
     public String getOutputFileName() {
         return outputFileName;
+    }
+
+    public String getFileFilter() {
+        return fileFilter;
     }
 }
