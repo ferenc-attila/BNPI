@@ -21,18 +21,22 @@ import java.util.zip.ZipOutputStream;
 public class WriteZipBackup {
 
     private static final int BUFFER = 2048;
-    private static final Logger logger = (Logger) LoggerFactory.getLogger(WriteZipBackup.class);
+    private static final Logger WRITE_ZIP_BACKUP_LOGGER = (Logger) LoggerFactory.getLogger(WriteZipBackup.class);
 
     private final File inputFolder;
     private final String outputFileName;
-    private final String fileFilter;
+    private String fileFilter;
     private final List<File> listOfFiles = new ArrayList<>();
 
-    public WriteZipBackup(String inputFolder, String outputFileName, String fileFilter) {
+    public WriteZipBackup(String inputFolder, String outputFileName) {
         validateInputString(inputFolder);
         validateInputString(outputFileName);
         this.inputFolder = Path.of(inputFolder).toFile();
         this.outputFileName = outputFileName + createOutputFileNamePostfix();
+    }
+
+    public WriteZipBackup(String inputFolder, String outputFileName, String fileFilter) {
+        this(inputFolder, outputFileName);
         this.fileFilter = fileFilter;
     }
 
@@ -43,20 +47,20 @@ public class WriteZipBackup {
 
     private void validateInputString(String string) {
         if (string == null || string.isBlank()) {
-            logger.error("The input parameters cannot be null or empty string!");
+            WRITE_ZIP_BACKUP_LOGGER.error("The input parameters cannot be null or empty string!");
             throw new IllegalArgumentException("The input parameters cannot be null or empty string!");
         }
     }
 
     public void writeZip() {
-        logger.info("Starting backup...");
+        WRITE_ZIP_BACKUP_LOGGER.info("Starting backup from: {}", inputFolder);
         createListOfInputFiles();
-        listOfFiles.forEach(file -> logger.debug("Add file " + file.getName() + " to " + outputFileName.substring(outputFileName.lastIndexOf("/") + 1)));
+        listOfFiles.forEach(file -> WRITE_ZIP_BACKUP_LOGGER.debug("Add file {} to {}", file.getName(), outputFileName.substring(outputFileName.lastIndexOf("/") + 1)));
         try (ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(outputFileName))) {
             listOfFiles.forEach(file -> addToZipFile(file, zipOutputStream));
-            logger.info(outputFileName + " created successfully with " + Files.size(Path.of(outputFileName)) + " bytes.");
+            WRITE_ZIP_BACKUP_LOGGER.info("{} created successfully with {} bytes.", outputFileName, Files.size(Path.of(outputFileName)));
         } catch (IOException | IllegalStateException | IllegalArgumentException exception) {
-            logger.error(exception.getMessage());
+            WRITE_ZIP_BACKUP_LOGGER.error(exception.getMessage());
         }
     }
 
@@ -67,7 +71,7 @@ public class WriteZipBackup {
             zipOutputStream.putNextEntry(entry);
             writeInputStreamToOutputStream(zipOutputStream, inputStream);
         } catch (IOException ioe) {
-            logger.error("Unable to process " + file.getName() + "!");
+            WRITE_ZIP_BACKUP_LOGGER.error("Unable to process {}!", file.getName());
             throw new IllegalStateException("Unable to process " + file.getName() + "!", ioe);
         }
     }
@@ -95,7 +99,7 @@ public class WriteZipBackup {
                     .filter(this::filterByFileName)
                     .forEach(listOfFiles::add);
         } catch (IOException ex) {
-            logger.error("Cannot read folder: " + inputFolder + "!");
+            WRITE_ZIP_BACKUP_LOGGER.error("Cannot read folder: {}!", inputFolder);
             throw new IllegalStateException("Cannot read folder: " + inputFolder + "!");
         }
     }
@@ -110,11 +114,11 @@ public class WriteZipBackup {
 
     private void validateInputFolder() {
         if (inputFolder == null) {
-            logger.error("Input folder can not be null!");
+            WRITE_ZIP_BACKUP_LOGGER.error("Input folder can not be null!");
             throw new IllegalStateException("Input folder can not be null!");
         }
         if (!inputFolder.isDirectory()) {
-            logger.error("Input folder: " + inputFolder + " does not exists or not a directory!");
+            WRITE_ZIP_BACKUP_LOGGER.error("Input folder: {} does not exists or not a directory!", inputFolder);
             throw new IllegalStateException("Input folder: " + inputFolder + " does not exists or not a directory!");
         }
     }
