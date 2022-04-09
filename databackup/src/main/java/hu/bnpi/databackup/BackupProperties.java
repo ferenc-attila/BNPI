@@ -3,75 +3,118 @@ package hu.bnpi.databackup;
 import ch.qos.logback.classic.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Properties;
 
 public class BackupProperties {
 
     private static final Logger BACKUP_PROPERTIES_LOGGER = (Logger) LoggerFactory.getLogger(BackupProperties.class);
 
-    private final String dataFolder;
-    private final String backupFilePrefix;
+    private File inputFolder;
+    private String backupFilePrefix;
     private String fileFilter;
 
-    public BackupProperties(String dataFolder, String backupFilePrefix) {
-        this.dataFolder = dataFolder;
+    public BackupProperties(String inputFolder, String backupFilePrefix) {
+        validateInputString(inputFolder);
+        validateInputString(backupFilePrefix);
+        this.inputFolder = Path.of(inputFolder).toFile();
         this.backupFilePrefix = backupFilePrefix;
+        validateInputFolder();
     }
 
-    public BackupProperties(String dataFolder, String backupFilePrefix, String fileFilter) {
-        this(dataFolder, backupFilePrefix);
+    public BackupProperties(String inputFolder, String backupFilePrefix, String fileFilter) {
+        this(inputFolder, backupFilePrefix);
         this.fileFilter = fileFilter;
     }
 
-    public BackupProperties (String[] args) {
-        validateCliArguments(args);
-        if (args.length == 2) {
-            this.dataFolder = args[0];
-            this.backupFilePrefix = args[1];
-        } else {
-            this.dataFolder = args[0];
-            this.backupFilePrefix = args[1];
+    public BackupProperties(String[] args) {
+        setAttributesByArray(args);
+    }
+
+    public BackupProperties(String pathOfPropertiesFile) {
+        Properties properties = getProperties(pathOfPropertiesFile);
+        String[] arguments = getArgumentsFromProperties(properties);
+        setAttributesByArray(arguments);
+    }
+
+    private void setAttributesByArray(String[] args) {
+        validateArguments(args);
+        this.inputFolder = Path.of(args[0]).toFile();
+        this.backupFilePrefix = args[1];
+        if (args.length == 3) {
             this.fileFilter = args[2];
+        }
+        validateInputFolder();
+    }
+
+    private void validateInputFolder() {
+        if (inputFolder == null) {
+            BACKUP_PROPERTIES_LOGGER.error("Input folder can not be null!");
+            throw new IllegalStateException("Input folder can not be null!");
+        }
+        if (!inputFolder.isDirectory()) {
+            BACKUP_PROPERTIES_LOGGER.error("Input folder: {} does not exists or not a directory!", inputFolder);
+            throw new IllegalStateException("Input folder: " + inputFolder + " does not exists or not a directory!");
         }
     }
 
-    public BackupProperties createBackupPropertiesByPropertiesFile (String pathOfPropertiesFile) {
-        Properties properties = getProperties(pathOfPropertiesFile);
-        String dataFolderProperty = properties.getProperty("dataFolder");
-        String backupFilePrefixProperty = properties.getProperty("backupFilePrefix");
-        String fileFilterProperty = properties.getProperty("fileFilter", "");
-        if (fileFilterIsExists(fileFilterProperty)) {
-            return new BackupProperties(dataFolderProperty, backupFilePrefixProperty, fileFilterProperty);
-        } else {
-            return new BackupProperties(dataFolderProperty, backupFilePrefixProperty);
+    private void validateInputString(String string) {
+        if (string == null || string.isBlank()) {
+            BACKUP_PROPERTIES_LOGGER.error("The input parameters cannot be null or empty string!");
+            throw new IllegalArgumentException("The input parameters cannot be null or empty string!");
         }
     }
 
     private Properties getProperties(String pathOfPropertiesFile) {
         Properties properties = new Properties();
-        try (InputStream inputStream = Main.class.getResourceAsStream(pathOfPropertiesFile)) {
-            properties.load(inputStream);
+        try (Reader reader = Files.newBufferedReader(Path.of(pathOfPropertiesFile))) {
+            properties.load(reader);
         } catch (IOException ioe) {
+            BACKUP_PROPERTIES_LOGGER.error("Cannot load properties file: " + ioe.getMessage());
             throw new IllegalStateException("Cannot load properties file", ioe);
         }
         return properties;
     }
 
-    private boolean fileFilterIsExists(String fileFilter) {
-        return !(fileFilter == null || fileFilter.isBlank());
+    private String[] getArgumentsFromProperties(Properties properties) {
+        String inputFolderProperty = properties.getProperty("inputFolder");
+        String backupFilePrefixProperty = properties.getProperty("backupFilePrefix");
+        String fileFilterProperty = properties.getProperty("fileFilter", "");
+        if (fileFilterProperty == null || fileFilterProperty.isBlank()) {
+            String[] result = {inputFolderProperty, backupFilePrefixProperty};
+            validateArguments(result);
+            return result;
+        } else {
+            String[] result = {inputFolderProperty, backupFilePrefixProperty, fileFilterProperty};
+            validateArguments(result);
+            return result;
+        }
     }
 
-    private void validateCliArguments(String[] args) {
+    private void validateArguments(String[] args) {
         if (args.length < 2 || args.length > 3) {
-            BACKUP_PROPERTIES_LOGGER.error("Number of commandline arguments must be 2 or 3!");
-            throw new IllegalArgumentException("Number of commandline arguments must be 2 or 3!");
+            BACKUP_PROPERTIES_LOGGER.error("Number of arguments must be 2 or 3!");
+            throw new IllegalArgumentException("Number of arguments must be 2 or 3!");
         }
-     }
+        validateInputString(args[0]);
+        validateInputString(args[1]);
+    }
 
-    public String getDataFolder() {
-        return dataFolder;
+    public String getOutputFileName() {
+        return backupFilePrefix + createOutputFileNamePostfix();
+    }
+
+    private String createOutputFileNamePostfix() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
+        return "_" + LocalDateTime.now().format(formatter) + ".zip";
+    }
+
+    public File getInputFolder() {
+        return inputFolder;
     }
 
     public String getBackupFilePrefix() {
