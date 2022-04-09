@@ -52,10 +52,6 @@ public class BackupProperties {
     }
 
     private void validateInputFolder() {
-        if (inputFolder == null) {
-            BACKUP_PROPERTIES_LOGGER.error("Input folder can not be null!");
-            throw new IllegalStateException("Input folder can not be null!");
-        }
         if (!inputFolder.isDirectory()) {
             BACKUP_PROPERTIES_LOGGER.error("Input folder: {} does not exists or not a directory!", inputFolder);
             throw new IllegalStateException("Input folder: " + inputFolder + " does not exists or not a directory!");
@@ -74,8 +70,8 @@ public class BackupProperties {
         try (Reader reader = Files.newBufferedReader(Path.of(pathOfPropertiesFile))) {
             properties.load(reader);
         } catch (IOException ioe) {
-            BACKUP_PROPERTIES_LOGGER.error("Cannot load properties file: " + ioe.getMessage());
-            throw new IllegalStateException("Cannot load properties file", ioe);
+            BACKUP_PROPERTIES_LOGGER.error("Cannot load properties file: {}", pathOfPropertiesFile);
+            throw new IllegalStateException("Cannot load properties file: " + pathOfPropertiesFile, ioe);
         }
         return properties;
     }
@@ -96,10 +92,6 @@ public class BackupProperties {
     }
 
     private void validateArguments(String[] args) {
-        if (args.length < 2 || args.length > 3) {
-            BACKUP_PROPERTIES_LOGGER.error("Number of arguments must be 2 or 3!");
-            throw new IllegalArgumentException("Number of arguments must be 2 or 3!");
-        }
         validateInputString(args[0]);
         validateInputString(args[1]);
     }

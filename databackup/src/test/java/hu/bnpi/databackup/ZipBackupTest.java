@@ -31,4 +31,24 @@ class ZipBackupTest {
         Path path = zipBackup.getBackupProperties().getInputFolder().toPath().resolve(zipBackup.getBackupProperties().getOutputFileName());
         assertTrue(Files.exists(path));
     }
+
+    @Test
+    void writeZipWithEmptyFilterTest() {
+        Path inputAbsolutePath = Path.of("src/test/resources").toAbsolutePath();
+        Path outputAbsolutePath = Path.of(temporaryFolder.getPath() + "/backup").toAbsolutePath();
+        ZipBackup zipBackup = new ZipBackup(new BackupProperties(inputAbsolutePath.toString(), outputAbsolutePath.toString(), ""));
+        zipBackup.writeZipBackup();
+        Path path = zipBackup.getBackupProperties().getInputFolder().toPath().resolve(zipBackup.getBackupProperties().getOutputFileName());
+        assertTrue(Files.exists(path));
+    }
+
+    @Test
+    void writeZipWithNullFilterTest() {
+        Path inputAbsolutePath = Path.of("src/test/resources").toAbsolutePath();
+        Path outputAbsolutePath = Path.of(temporaryFolder.getPath() + "/backup").toAbsolutePath();
+        ZipBackup zipBackup = new ZipBackup(new BackupProperties(inputAbsolutePath.toString(), outputAbsolutePath.toString()));
+        zipBackup.writeZipBackup();
+        Path path = zipBackup.getBackupProperties().getInputFolder().toPath().resolve(zipBackup.getBackupProperties().getOutputFileName());
+        assertTrue(Files.exists(path));
+    }
 }
