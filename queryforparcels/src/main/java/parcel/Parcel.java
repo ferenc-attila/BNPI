@@ -34,8 +34,17 @@ public class Parcel {
         this.area = area;
     }
 
-    @Override
-    public String toString() {
+    public String toCsvString(String delimiter) {
+        return township + delimiter +
+                parcelNumber + delimiter +
+                subpart + delimiter +
+                cultivation + delimiter +
+                uncultivatedName + delimiter +
+                area + delimiter +
+                toIdString();
+    }
+
+    public String toIdString() {
         return township + "-" + parcelNumber + subpart;
     }
 
