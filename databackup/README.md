@@ -1,5 +1,5 @@
 # Data backup
-_V1.0: 2022-04-07_
+_V1.1: 2022-04-09_
 
 A small application to save a folder recursively into a zip file.
 It reads the input folder's and the output file's path from the command line argument.
@@ -8,7 +8,7 @@ cron job.
 
 It filters files in the folder:
 - didn't save hidden files
-- only saves files with specific file name content (.gpkg)
+- you can define a filename part to filter files where filename contains that string. Default is ".gpkg".
 
 The application could be also run in a docker container, with a predefined crontab. Dockerfile and
 docker-compose.yml created.
@@ -18,8 +18,8 @@ and the docker image on [Docker Hub](https://hub.docker.com/r/ferencattila/datab
 
 ## TODO
 
-- [ ] implementation of more test cases
+- [x] implementation of more test cases
 - [ ] read paths from a properties file
 - [x] logback implementation
 - [ ] documentation
-- [ ] dynamic filters
+- [x] dynamic filters

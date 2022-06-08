@@ -4,14 +4,13 @@ FROM eclipse-temurin:17-jre-alpine
 
 RUN mkdir "/etc/app/" && \
     mkdir "/etc/app/data-backup/" && \
-    mkdir "/etc/app/data-backup/jar" && \
     mkdir "/etc/app/data-backup/data" && \
     mkdir "/etc/app/data-backup/backup" && \
     mkdir "/etc/app/data-backup/logs"
 
-COPY ./out/artifacts/databackup_jar/databackup.jar /etc/app/data-backup/jar/databackup.jar
-COPY docker_resources/crontab /etc/crontabs/root
-COPY docker_resources/entrypoint.sh /entrypoint.sh
+COPY ./out/artifacts/databackup_jar/databackup.jar /etc/app/data-backup/databackup.jar
+COPY crontab /etc/crontabs/root
+COPY entrypoint.sh /entrypoint.sh
 
 RUN chmod 0644 /etc/app/data-backup/jar/databackup.jar && \
 chmod 755 /entrypoint.sh

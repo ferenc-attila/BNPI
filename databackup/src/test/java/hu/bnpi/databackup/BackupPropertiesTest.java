@@ -18,7 +18,7 @@ class BackupPropertiesTest {
         BackupProperties backupProperties = new BackupProperties("src/test/resources", "src/test/resources/backup");
 
         assertEquals("src" + separator + "test" + separator + "resources", backupProperties.getInputFolder().getPath());
-        assertEquals("src/test/resources/backup_" + dateTimeString + ".zip", backupProperties.getOutputFileName());
+        assertEquals("backup_" + dateTimeString + ".zip", backupProperties.getBackupFile().getName());
         assertNull(backupProperties.getFileFilter());
     }
 
@@ -31,7 +31,7 @@ class BackupPropertiesTest {
         BackupProperties backupProperties = new BackupProperties("src/test/resources", "src/test/resources/backup", "gpkg");
 
         assertEquals("src" + separator + "test" + separator + "resources", backupProperties.getInputFolder().getPath());
-        assertEquals("src/test/resources/backup_" + dateTimeString + ".zip", backupProperties.getOutputFileName());
+        assertEquals("backup_" + dateTimeString + ".zip", backupProperties.getBackupFile().getName());
         assertEquals("gpkg", backupProperties.getFileFilter());
     }
 
@@ -45,7 +45,7 @@ class BackupPropertiesTest {
         BackupProperties backupProperties = new BackupProperties(args);
 
         assertEquals("src" + separator + "test" + separator + "resources", backupProperties.getInputFolder().getPath());
-        assertEquals("src/test/resources/backup_" + dateTimeString + ".zip", backupProperties.getOutputFileName());
+        assertEquals("backup_" + dateTimeString + ".zip", backupProperties.getBackupFile().getName());
         assertNull(backupProperties.getFileFilter());
     }
 
@@ -59,7 +59,7 @@ class BackupPropertiesTest {
         BackupProperties backupProperties = new BackupProperties(args);
 
         assertEquals("src" + separator + "test" + separator + "resources", backupProperties.getInputFolder().getPath());
-        assertEquals("src/test/resources/backup_" + dateTimeString + ".zip", backupProperties.getOutputFileName());
+        assertEquals("backup_" + dateTimeString + ".zip", backupProperties.getBackupFile().getName());
         assertEquals("gpkg", backupProperties.getFileFilter());
     }
 
@@ -72,7 +72,7 @@ class BackupPropertiesTest {
         BackupProperties backupProperties = new BackupProperties("src/test/resources/filteredbackup.properties");
 
         assertEquals("." + separator + "docker_resources" + separator + "data", backupProperties.getInputFolder().getPath());
-        assertEquals("./docker_resources/backup/test_backup_" + dateTimeString + ".zip", backupProperties.getOutputFileName());
+        assertEquals("test_backup_" + dateTimeString + ".zip", backupProperties.getBackupFile().getName());
         assertEquals("gpkg", backupProperties.getFileFilter());
     }
 
@@ -85,7 +85,7 @@ class BackupPropertiesTest {
         BackupProperties backupProperties = new BackupProperties("src/test/resources/unfilteredbackup.properties");
 
         assertEquals("." + separator + "docker_resources" + separator + "data", backupProperties.getInputFolder().getPath());
-        assertEquals("./docker_resources/backup/test_backup_" + dateTimeString + ".zip", backupProperties.getOutputFileName());
+        assertEquals("test_backup_" + dateTimeString + ".zip", backupProperties.getBackupFile().getName());
         assertNull(backupProperties.getFileFilter());
     }
 

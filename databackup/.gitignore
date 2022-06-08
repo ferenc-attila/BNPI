@@ -2,7 +2,8 @@ traget/
 .idea/
 out/
 *.iml
-docker_resources/data/
-docker_resources/backup/
-docker_resources/logs/
+data/
+backup/
+logs/
 cron_tasks_folder/
+

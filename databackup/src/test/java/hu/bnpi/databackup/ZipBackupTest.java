@@ -18,7 +18,7 @@ class ZipBackupTest {
     void writeZipWithRelativePathTest() {
         ZipBackup zipBackup = new ZipBackup(new BackupProperties("src/test/resources", temporaryFolder.getPath() + "/backup", "gpkg"));
         zipBackup.writeZipBackup();
-        Path path = zipBackup.getBackupProperties().getInputFolder().toPath().resolve(zipBackup.getBackupProperties().getOutputFileName());
+        Path path = zipBackup.getBackupProperties().getBackupFile().toPath();
         assertTrue(Files.exists(path));
     }
 
@@ -28,7 +28,7 @@ class ZipBackupTest {
         Path outputAbsolutePath = Path.of(temporaryFolder.getPath() + "/backup").toAbsolutePath();
         ZipBackup zipBackup = new ZipBackup(new BackupProperties(inputAbsolutePath.toString(), outputAbsolutePath.toString(), "gpkg"));
         zipBackup.writeZipBackup();
-        Path path = zipBackup.getBackupProperties().getInputFolder().toPath().resolve(zipBackup.getBackupProperties().getOutputFileName());
+        Path path = zipBackup.getBackupProperties().getBackupFile().toPath();
         assertTrue(Files.exists(path));
     }
 
@@ -38,7 +38,7 @@ class ZipBackupTest {
         Path outputAbsolutePath = Path.of(temporaryFolder.getPath() + "/backup").toAbsolutePath();
         ZipBackup zipBackup = new ZipBackup(new BackupProperties(inputAbsolutePath.toString(), outputAbsolutePath.toString(), ""));
         zipBackup.writeZipBackup();
-        Path path = zipBackup.getBackupProperties().getInputFolder().toPath().resolve(zipBackup.getBackupProperties().getOutputFileName());
+        Path path = zipBackup.getBackupProperties().getBackupFile().toPath();
         assertTrue(Files.exists(path));
     }
 
@@ -48,7 +48,7 @@ class ZipBackupTest {
         Path outputAbsolutePath = Path.of(temporaryFolder.getPath() + "/backup").toAbsolutePath();
         ZipBackup zipBackup = new ZipBackup(new BackupProperties(inputAbsolutePath.toString(), outputAbsolutePath.toString()));
         zipBackup.writeZipBackup();
-        Path path = zipBackup.getBackupProperties().getInputFolder().toPath().resolve(zipBackup.getBackupProperties().getOutputFileName());
+        Path path = zipBackup.getBackupProperties().getBackupFile().toPath();
         assertTrue(Files.exists(path));
     }
 }

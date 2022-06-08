@@ -32,13 +32,14 @@ public class ZipBackup {
         ZIP_BACKUP_LOGGER.info("Starting backup from: {}", backupProperties.getInputFolder());
         createListOfInputFiles();
         listOfFiles.forEach(file -> ZIP_BACKUP_LOGGER.debug("Add file {} to {}", file.getName(),
-                backupProperties.getOutputFileName().substring(backupProperties.getOutputFileName().lastIndexOf("/") + 1)));
-        try (ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(backupProperties.getOutputFileName()))) {
+                backupProperties.getBackupFile().getName().substring(backupProperties.getBackupFile().getName().lastIndexOf("/") + 1)));
+        try (ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(backupProperties.getBackupFile()))) {
             listOfFiles.forEach(file -> addToZipFile(file, zipOutputStream));
             ZIP_BACKUP_LOGGER.info("{} created successfully with {} bytes.",
-                    backupProperties.getOutputFileName(), Files.size(Path.of(backupProperties.getOutputFileName())));
+                    backupProperties.getBackupFile().getName(), Files.size(backupProperties.getBackupFile().toPath()));
         } catch (IOException | IllegalStateException | IllegalArgumentException exception) {
-            ZIP_BACKUP_LOGGER.error(exception.getMessage());
+            ZIP_BACKUP_LOGGER.error("Something went wrong: {}, {}", exception.getClass().toString(), exception.getMessage());
+            exception.printStackTrace();
         }
     }
 

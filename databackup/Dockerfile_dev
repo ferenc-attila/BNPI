@@ -10,8 +10,8 @@ RUN mkdir "/etc/app/" && \
     mkdir "/etc/app/data-backup/logs"
 
 #COPY ./out/artifacts/databackup_jar/databackup.jar /etc/app/data-backup/jar/databackup.jar
-COPY docker_resources/crontab /etc/crontabs/root
-COPY docker_resources/entrypoint.sh /entrypoint.sh
+COPY crontab /etc/crontabs/root
+COPY entrypoint.sh /entrypoint.sh
 
 #RUN chmod 0644 /etc/app/data-backup/jar/databackup.jar && \
 RUN chmod 755 /entrypoint.sh

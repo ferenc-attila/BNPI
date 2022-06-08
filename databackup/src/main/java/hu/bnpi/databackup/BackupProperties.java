@@ -15,14 +15,14 @@ public class BackupProperties {
     private static final Logger BACKUP_PROPERTIES_LOGGER = (Logger) LoggerFactory.getLogger(BackupProperties.class);
 
     private File inputFolder;
-    private String backupFilePrefix;
+    private File backupFile;
     private String fileFilter;
 
     public BackupProperties(String inputFolder, String backupFilePrefix) {
         validateInputString(inputFolder);
         validateInputString(backupFilePrefix);
         this.inputFolder = Path.of(inputFolder).toFile();
-        this.backupFilePrefix = backupFilePrefix;
+        this.backupFile = Path.of(getOutputFileName(backupFilePrefix)).toFile();
         validateInputFolder();
     }
 
@@ -44,7 +44,7 @@ public class BackupProperties {
     private void setAttributesByArray(String[] args) {
         validateArguments(args);
         this.inputFolder = Path.of(args[0]).toFile();
-        this.backupFilePrefix = args[1];
+        this.backupFile = Path.of(getOutputFileName(args[1])).toFile();
         if (args.length == 3) {
             this.fileFilter = args[2];
         }
@@ -96,7 +96,7 @@ public class BackupProperties {
         validateInputString(args[1]);
     }
 
-    public String getOutputFileName() {
+    public String getOutputFileName(String backupFilePrefix) {
         return backupFilePrefix + createOutputFileNamePostfix();
     }
 
@@ -109,8 +109,8 @@ public class BackupProperties {
         return inputFolder;
     }
 
-    public String getBackupFilePrefix() {
-        return backupFilePrefix;
+    public File getBackupFile() {
+        return backupFile;
     }
 
     public String getFileFilter() {
