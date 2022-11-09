@@ -2,22 +2,23 @@
 QGIS műveletek:
 
 1. Megfigyelések tábla szükséges mezőinek újtraformázása (Feldolgozás eszköztár/Vektor:attribútumtábla):
-  adatkozlo -> observer
   datum -> observation_date
-  faj -> species
   mmm_szamlalas -> counting
+  adatkozlo -> observer
+  faj -> species
   egyed -> individuals
   aktivitas -> activity
 
 2. Térbeli adatkapcsolás (Vektor/Adatkezelő eszközök/Attribútumok összekapcsolása hely alapján):
   ujrakonfiguralt (metszik, benne vannak) mmm_200 (csak a pont és kvad mezők) egy-egy kapcsolat
-  kvad és pont mezők átnevezése (rendre utm_name, point_num)
+  kvad és pont mezők átnevezése (rendre utm_name, pointnum)
 
 3. Térbeli adatkapcsolás számlálásonként külön:
     Összekapcsolt réteg (1. számlálás) - mmm_200 (csak az ido1, szel1 mezők) egy-egy kapcsolat
     Összekapcsolt réteg (2. számlálás) - mmm_200 (csak az ido2, szel2 mezők) egy-egy kapcsolat
 
-4. Az összekapcsolt rétegeken a idő és szél mezők átnevezése egységesen (rendre count_start, wind), majd a két számlálás rétegeinek összefűzése.
+4. Az összekapcsolt rétegeken a idő és szél mezők átnevezése egységesen (rendre count_start, wind),
+  majd a két számlálás rétegeinek összefűzése.
   location (TEXT, 10) mező létrehozása.
 
 5. 50-es kör, 100-as és 200-as körgyűrű rétegek létrehozása
@@ -62,6 +63,25 @@ Valami PITTY-PUTTY van a geometria oszlop átvitelével!!!
 INSERT INTO formatted_observations (observer, observation_date, species, counting, individuals, geometry)
 SELECT adatkozlo, datum, faj, mmm_szamlalas, egyed, ST_GeomFromWKB(GEOMETRY) FROM megfigyelesek;
 */
+
+/*Megfigyelő kódokat tartalmazó tábla*/
+CREATE TABLE observers (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	observer_name TEXT(100),
+	observer_id INTEGER
+);
+
+INSERT INTO observers (observer_name,observer_id) VALUES
+	 ('Juhász Benedek',2590),
+	 ('Széles Tamás',1764),
+	 ('Tóth László',940),
+	 ('Ferenc Attila',614),
+   ('Sasvári János',460);
+
+ /* Megfigyelő kódok beírása*/
+UPDATE formatted_observations 
+  SET observer_id = (SELECT observers.observer_id FROM observers WHERE formatted_observations.observer = observers.observer_name)
+  WHERE observer IN (SELECT observer_name FROM observers WHERE observers.observer_name = formatted_observations.observer);
 
 /*Ha már létezik, el el kell dobni a létrehozandó tábláinkat*/
 DROP TABLE terepnaplo_adattabla;
@@ -157,3 +177,82 @@ UPDATE summarized_data
 UPDATE summarized_data
   SET species_huring = (SELECT fajlista.HURING FROM fajlista WHERE summarized_data.species = fajlista.hun)
   WHERE species IN (SELECT hun FROM fajlista WHERE fajlista.hun = summarized_data.species);
+
+/* Végső tábla összállítása*/
+
+/* A szüksléges kvadrátok:
+DT56C2
+DT56C4
+DT66C2
+DT67B2
+DT67C2
+DT67D2
+DT68B1
+DT68D2
+DT77A2
+DT78B2
+*/
+
+DROP TABLE final_data;
+
+CREATE TABLE final_data (
+  cover_id INTEGER,
+  utm_name TEXT(6),
+	observer_id INTEGER,
+  observation_date TEXT(10),
+  covers_description TEXT(100),
+  uploader TEXT(100),
+  submit_date TEXT(100),
+  pointnum INTEGER,
+  count_start TEXT(8),
+  wind INTEGER,
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  point_id INTEGER,
+  species_huring TEXT(6),
+  '100m+' INTEGER,
+  'atrepult' INTEGER,
+  '0-50m' INTEGER,
+  '50-100m' INTEGER
+);
+
+INSERT INTO final_data (
+  utm_name,
+  observer_id,
+  observation_date,
+  pointnum,
+  count_start,
+  wind,
+  species_huring,
+  '100m+',
+  atrepult,
+  '0-50m',
+  '50-100m'
+  )
+SELECT
+  utm_name,
+  observer_id,
+  observation_date,
+  pointnum,
+  count_start,
+  wind,
+  species_huring,
+  ring200,
+  atrepult,
+  circle50,
+  ring100
+FROM summarized_data
+WHERE summarized_data.utm_name IN
+(
+  'DT56C2',
+  'DT56C4',
+  'DT66C2',
+  'DT67B2',
+  'DT67C2',
+  'DT67D2',
+  'DT68B1',
+  'DT68D2',
+  'DT77A2',
+  'DT78B2'
+);
+
+/*Ezt kell exposrtálni csv-be.*/
